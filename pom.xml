@@ -14,7 +14,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <agentscope.version>1.0.10</agentscope.version>
+        <agentscope.version>1.0.11</agentscope.version>
         <anthropic.version>2.16.1</anthropic.version>
         <openai.version>3.0.2</openai.version>
         <lombok.version>1.18.42</lombok.version>
