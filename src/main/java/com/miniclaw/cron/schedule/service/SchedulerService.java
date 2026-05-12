@@ -8,6 +8,7 @@ import com.miniclaw.cron.schedule.hook.DeliverToUserHook;
 import com.miniclaw.provider.ApiType;
 import com.miniclaw.provider.CommonModelConfig;
 import com.miniclaw.provider.Provider;
+import io.agentscope.core.message.Msg;
 import io.agentscope.core.model.AnthropicChatModel;
 import io.agentscope.core.model.Model;
 import io.agentscope.core.model.OpenAIChatModel;
@@ -18,6 +19,7 @@ import io.agentscope.extensions.scheduler.config.ModelConfig;
 import io.agentscope.extensions.scheduler.config.RuntimeAgentConfig;
 import io.agentscope.extensions.scheduler.config.ScheduleConfig;
 import io.agentscope.extensions.scheduler.config.ScheduleMode;
+import io.agentscope.extensions.scheduler.quartz.QuartzAgentScheduler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
@@ -46,13 +48,13 @@ import java.util.Map;
 public class SchedulerService {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    private final com.miniclaw.cron.schedule.QuartzAgentScheduler scheduler;
+    private final QuartzAgentScheduler scheduler;
     private final ModelConfig modelConfig;
     private final AgentMessageQueue agentMessageQueue;
 
     public SchedulerService(AgentMessageQueue agentMessageQueue) {
         this.agentMessageQueue = agentMessageQueue;
-        this.scheduler = com.miniclaw.cron.schedule.QuartzAgentScheduler.builder().autoStart(true).build();
+        this.scheduler = QuartzAgentScheduler.builder().autoStart(true).build();
 
         // 加载配置
         Config config = ConfigLoader.loadConfig();
@@ -136,8 +138,8 @@ public class SchedulerService {
                     .hooks(List.of(new DeliverToUserHook(agentMessageQueue, userContext, deliver)))
                     .sysPrompt("你是一个助手，需要根据用户指令执行任务。")
                     .build();
-
-            ScheduleAgentTask task = scheduler.schedule(agentConfig, scheduleConfig, message);
+            Msg msg = Msg.builder().textContent(message).build();
+            ScheduleAgentTask task = scheduler.schedule(agentConfig, scheduleConfig,msg);
             return String.format("Created job '%s' (id: %s)", task.getId(), task.getName(), message);
         } catch (Exception e) {
             log.error("Failed to add job", e);
